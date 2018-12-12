@@ -19,7 +19,7 @@ exports.cards_get_all = (req, res, next) => {
               dueDate: result.dueDate,
               progress: result.progress,
               type: result.type,
-              archived: req.body.archived,
+              archived: result.archived,
               request: {
                 type: 'GET',
                 url: 'http://localhost:4000/cards/' + result._id
@@ -159,46 +159,6 @@ exports.delete_all_cards = (req, res, next) => {
     })
 }
 
-// add card to archive
-exports.add_card_to_archive = (req, res, next) => {
-  const card = new Card({
-    content: req.body.content,
-    createDate: req.body.createDate,
-    dueDate: req.body.dueDate,
-    dueDays: req.body.dueDays,
-    progress: req.body.progress,
-    title: req.body.title,
-    type: req.body.type,
-    archived: req.body.archived
-  })
-  card.save()
-    .then(result => {
-      console.log(result);
-      res.status(201).json({
-        message: 'Card added to archive',
-        createdCard: {
-          id: result._id,
-          title: req.body.title,
-          content: req.body.content,
-          dueDays: req.body.dueDays,
-          createDate: req.body.createDate,
-          dueDate: req.body.dueDate,
-          progress: req.body.progress,
-          type: req.body.type,
-          archived: req.body.archived,
-          request: {
-            type: 'GET',
-            url: 'http://localhost:4000/archive'
-          }
-        }
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({error: err});
-    });
-}
-
 // get all archived cards
 exports.get_archived_cards = (req, res, next) => {
   Card.find({ archived: true})
@@ -218,10 +178,10 @@ exports.get_archived_cards = (req, res, next) => {
               dueDate: result.dueDate,
               progress: result.progress,
               type: result.type,
-              archived: req.body.archived,
+              archived: result.archived,
               request: {
                 type: 'GET',
-                url: 'http://localhost:4000/cards/' + result._id
+                url: 'http://localhost:4000/archive/' + result._id
               }
 
             }
@@ -237,9 +197,10 @@ exports.get_archived_cards = (req, res, next) => {
       })
 }
 
-// delete archived card
-exports.delete_archived_card = (req, res, next) => {
-  Card.deleteOne({_id: id})
+// archive card
+exports.patch_archive_card = (req, res, next) => {
+  const id = req.params.cardId;
+  Card.update({_id: id}, {$set: { archived: req.body.archived, progress: 100 , dueDays: 0 }})
     .exec()
     .then(result => {
     res.status(200).json(result);
@@ -252,7 +213,7 @@ exports.delete_archived_card = (req, res, next) => {
     })
 }
 
-
+// delete all archived cards
 exports.delete_all_archived_cards = (req, res, next) => {
   Card.deleteMany({archived: true})
     .exec()
