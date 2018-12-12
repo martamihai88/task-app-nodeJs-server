@@ -4,12 +4,12 @@ const checkAuth = require('../middleware/check-auth');
 const CardController = require('../controllers/card')
 
 // get all archived cards
-router.get('/',  CardController.get_archived_cards);
+router.get('/', checkAuth, CardController.get_archived_cards);
 
 // get all archived cards
-router.patch('/:cardId',  CardController.patch_archive_card)
+router.patch('/:cardId', checkAuth, CardController.patch_archive_card)
 
 // delete archived cards
-router.delete('/delete/all', CardController.delete_all_archived_cards);
+router.delete('/delete/all', checkAuth, CardController.delete_all_archived_cards);
 
 module.exports = router;
